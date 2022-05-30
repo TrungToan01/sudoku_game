@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Collections;
+using System.IO;
 
 namespace sudoku
 {
@@ -21,8 +22,7 @@ namespace sudoku
             InitializeComponent();
             createCells();
             startNewGame();
-            create_number();
-           
+            create_number();      
         }
         private string temp;
         private int X, Y;
@@ -62,7 +62,8 @@ namespace sudoku
             var cell = sender as Cons;
             if (cell.IsLocked)
                 return;
-            temp = cell.Name;           
+            temp = cell.Name;
+            
         }
         //create number board
         private void create_number()
@@ -78,7 +79,7 @@ namespace sudoku
                 btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, FontStyle.Bold);
                 btn.Margin = new Padding(4, 4, 0, 4);
                 btn.BackColor = Color.White;
-                //set event for button
+                //set event on button
                 pnlNumber.Controls.Add(btn);
                 btn.Click += new EventHandler(btn_click);
                 
@@ -99,6 +100,7 @@ namespace sudoku
                 cells[X, Y].Text = btn.Name;
                 cells[X, Y].ForeColor = Color.Red;
                 id_cells.Push(temp);
+                writeFile();
             }
             
         }
@@ -252,6 +254,7 @@ namespace sudoku
                 btnBack.Enabled = true;
                 btnPause.Visible = true;
                 btnTimer.Visible = false;
+                btnResult.Enabled = true;
                 timer1.Start();
             }
             else
@@ -279,12 +282,16 @@ namespace sudoku
             {
                 // Highlight the wrong inputs 
                 wrongCells.ForEach(x => x.ForeColor = Color.BlueViolet);
-                MessageBox.Show("Bạn đã thua!");
+                MessageBox.Show("Rất tiếc bạn đã thua!");
             }
             else
             {
-                MessageBox.Show("Bạn thắng!"+ time.Text);
+                btnTimer.Visible = true;
+                btnPause.Visible = false;
                 timer1.Stop();
+                MessageBox.Show("Chúc mừng! bạn đã thắng "+ time.Text);
+               
+
 
             }
         }
@@ -304,16 +311,15 @@ namespace sudoku
         {
             showrandomHelp(1);
         }
-        private void showrandomHelp(int hintsCount)
+        private void showrandomHelp(int hintsCount) 
         {
             for (int i = 0; i < hintsCount; i++)
             {
                 var rX = random.Next(9);
                 var rY = random.Next(9);
                 cells[rX, rY].Text = cells[rX, rY].Value.ToString();
-                cells[rX, rY].ForeColor = Color.Red;
+                cells[rX, rY].ForeColor = Color.MediumVioletRed;
                 cells[rX, rY].IsLocked = true;
-                //cells[rX, rY].BackColor = Color.Red;
             }
         }
 
@@ -326,6 +332,8 @@ namespace sudoku
             btnHelp.Enabled = false;
             btnDelete.Enabled = false;
             btnBack.Enabled = false;
+            btnResult.Enabled = false;
+
         }
         //setting time
         int h, m, s;
@@ -366,6 +374,88 @@ namespace sudoku
                 cells[X, Y].Text = "";         
             }
             
+        }
+
+
+        private void Result(int hintsCount)
+        {
+            for (int i = 0; i < hintsCount; i++)
+            {
+                var rX = random.Next(9);
+                var rY = random.Next(9);
+                cells[rX, rY].Text = cells[rX, rY].Value.ToString();
+                cells[rX, rY].IsLocked = true;
+            }
+        }
+
+
+        private void btnResult_Click(object sender, EventArgs e)
+        {
+            Result(1000);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            temp = null;
+            s = 0;
+            m = 0;
+            h = 0;
+           
+                btnCheck.Enabled = true;
+                btnClear.Enabled = true;
+                btnHelp.Enabled = true;
+                btnDelete.Enabled = true;
+                btnBack.Enabled = true;
+                btnPause.Visible = true;
+                btnTimer.Visible = false;
+                btnResult.Enabled = true;
+                timer1.Start();
+            readFile();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void writeFile() {
+            StreamWriter oFile = new StreamWriter("d:\\data.txt", false, Encoding.Unicode);
+
+            for (int r = 0; r < 9; r++)
+            {
+                for (int c = 0; c < 9; c++)
+                {
+
+                    if (cells[c, r].Text == "")
+                        oFile.Write("0");   
+                    else
+                        oFile.Write(cells[c, r].Text);
+                }
+
+
+            }
+
+            oFile.Close();
+        }
+
+        private void readFile()
+        {
+            StreamReader rFile = new StreamReader("d:\\data.txt");
+            String temp = rFile.ReadToEnd();
+            var temp2 = temp.ToList();
+            Console.WriteLine(temp2);
+
+
+            for (int r = 0; r < 9; r++)
+                for (int c = 0; c < 9; c++)
+                {
+                    if (temp2[(r * 9 + c)].ToString() == "0")
+                        cells[c, r].Text = "";
+                    else
+                        cells[c, r].Text = temp2[(r * 9 + c)].ToString();
+                    cells[c, r].ForeColor = Color.Black;
+                }
+
+            rFile.Close();
         }
 
         private void btnTimer_Click_1(object sender, EventArgs e)

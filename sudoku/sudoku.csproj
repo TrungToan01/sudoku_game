@@ -104,6 +104,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\pause.png" />
+    <None Include="Resources\japanese-background-g013af381f_1920.jpg" />
+    <None Include="Resources\Untitled.jpg" />
     <Content Include="Resources\video-pause-button.png" />
     <None Include="Resources\video-pause-button1.png" />
   </ItemGroup>
